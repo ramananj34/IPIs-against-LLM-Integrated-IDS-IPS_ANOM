@@ -38,8 +38,10 @@ def classify(row):
             return None  #Skip (we are not doing obfuscation/fuzzing/tampering)
         label = "malicious" #Label it as malicious
 
-    ###The rest of the code up to the return statement was written by ChatGPT to parse the HTTP information and create the sample.
-    parsed = urlparse(url)
+    #The rest of the code up to the return statement was written by ChatGPT to parse the HTTP information and create the sample.
+    url_part = url.rsplit(" ", 1)  # split off "HTTP/1.1"
+    protocol = url_part[1] if len(url_part) > 1 else "HTTP/1.1"
+    parsed = urlparse(url_part[0])
     path = parsed.path
     if parsed.query:
         path += "?" + parsed.query
