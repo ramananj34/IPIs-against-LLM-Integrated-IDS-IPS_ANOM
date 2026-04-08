@@ -64,7 +64,7 @@ def classify(row):
     }
     ###End of ChatGPT code
 
-def load_clean(csv_path, n=100):
+def load_clean(csv_path, n=200):
     benign = []
     malicious = []
     malicious_by_type = {k: [] for k in SIGS.keys()}
@@ -130,9 +130,9 @@ def save_to_csv(data, out_path):
 
 if __name__ == "__main__":
     #Get the arguments
-    path = sys.argv[1]
-    out_path = sys.argv[2] if len(sys.argv) > 2 else "output.csv"
-    n = int(sys.argv[3]) if len(sys.argv) > 3 else 100
+    path = sys.argv[1] if len(sys.argv) > 1 else "data/csic_database.csv"
+    out_path = sys.argv[2] if len(sys.argv) > 2 else "data/preprocessed.csv"
+    n = int(sys.argv[3]) if len(sys.argv) > 3 else 200
     
     #Load the data
     data = load_clean(path, n)
