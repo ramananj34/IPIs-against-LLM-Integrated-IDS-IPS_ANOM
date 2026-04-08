@@ -52,8 +52,8 @@ PROMPTS = {
 #Three models (ChatGPT, Claude, Gemini)
 MODELS = {
     "gpt-4o-mini": "openai",
-    "claude-haiku-4-5-20251001": "anthropic",
     "gemini-2.0-flash": "google",
+    "claude-haiku-4-5-20251001": "anthropic",
 }
 
 #Format a request dict as a raw HTTP string
@@ -117,13 +117,13 @@ def call_llm(model, provider, system_prompt, user_prompt, max_tokens=10):
 
 #Parse the LLM response and just look for benign or malicious
 def parse_response(text):
-    text = text.lower().strip().strip(".")
-    if "malicious" in text:
+    last_line = text.strip().split("\n")[-1].lower().strip().strip(".")
+    if "malicious" in last_line:
         return "malicious"
-    elif "benign" in text:
+    elif "benign" in last_line:
         return "benign"
     else:
-        return "unknown" #LLM didn't follow instructions (that is a problem)
+        return "unknown"
 
 #Load and process the condition CSV
 def load_csv(path):
@@ -134,7 +134,11 @@ def load_csv(path):
     return rows
 
 #Run evaluation
-def evaluate_condition(rows, condition_name, model, provider, prompt_name, system_prompt, writer, delay=0.5):
+def evaluate_condition(rows, condition_name, model, provider, prompt_name, system_prompt, writer):
+
+    delays = {"openai": 0.15, "anthropic": 1.5, "google": 0.1}
+    delay = delays.get(provider, 0.5)
+
     for i, req in enumerate(rows):
         http_text = format_http(req)
 
@@ -158,7 +162,7 @@ def evaluate_condition(rows, condition_name, model, provider, prompt_name, syste
         time.sleep(delay)
 
 if __name__ == "__main__":
-    data_dir = sys.argv[1] if len(sys.argv) > 1 else "."
+    data_dir = sys.argv[1] if len(sys.argv) > 1 else "data/augmented"
     out_path = sys.argv[2] if len(sys.argv) > 2 else "results.csv"
 
     #Get the API keys (unset one to test one at a time)

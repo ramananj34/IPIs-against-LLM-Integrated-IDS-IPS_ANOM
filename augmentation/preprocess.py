@@ -48,15 +48,21 @@ def classify(row):
     headers = {}
     for i, name in [(2,"User-Agent"),(3,"Pragma"),(4,"Cache-Control"),(5,"Accept"), (6,"Accept-Encoding"),(7,"Accept-Charset"),(8,"Accept-Language"), (9,"Host"),(10,"Cookie"),(11,"Content-Type"),(12,"Connection")]:
         if len(row) > i and row[i].strip():
-            headers[name] = row[i].strip()
+            val = row[i].strip()
+            if val.lower().startswith(name.lower() + ":"):
+                val = val[len(name)+1:].strip()
+            headers[name] = val
     if len(row) > 13 and row[13].strip():
-        headers["Content-Length"] = row[13].strip()
+        val = row[13].strip()
+        if val.lower().startswith("content-length:"):
+            val = val[len("Content-Length:"):].strip()
+        headers["Content-Length"] = val
 
     #Return everything
     return label, attack_type, {
         "method": row[1].strip(),
         "url": path or "/",
-        "protocol": parsed.scheme,
+        "protocol": protocol,
         "headers": headers,
         "body": body,
         "label": label,
